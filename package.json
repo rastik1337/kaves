@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "@discordjs/voice": "^0.13.0",
+    "discord.js": "^14.6.0",
+    "ffmpeg-static": "^5.1.0",
+    "sodium": "^3.0.2"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js -e js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
