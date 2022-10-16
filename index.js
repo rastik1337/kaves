@@ -55,17 +55,22 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
     const { commandName } = interaction;
 
-    if(commandName=== 'diskaves') {
-        if(getVoiceConnection(interaction.member.voice.channel.guild.id)) {
-            getVoiceConnection(interaction.member.voice.channel.guild.id).destroy();
-            return interaction.reply('ty kurvo, tohle mi nedělej')
-        }
-        return interaction.reply('nemam se odkud odpojit ty zmrde')
+    if (commandName === 'diskaves') {
+        if (interaction.member.voice.channel) {
+            if (getVoiceConnection(interaction.member.voice.channel.guild.id)) {
+                if(interaction.member.voice.channel.id === getVoiceConnection(interaction.member.voice.channel.guild.id).joinConfig.channelId) {
+                    getVoiceConnection(interaction.member.voice.channel.guild.id).destroy();
+                    return interaction.reply('ty kurvo, tohle mi nedělej')
+                }
+                return interaction.reply('vole, nejsi ve stejný roomce ty zmrdečku')
+            }
+            return interaction.reply('nemam se odkud odpojit ty zmrde')
+        } return interaction.reply('ty píčůsku, nejsi v roomce, nehehehe')
     }
     if (commandName === 'kafe') {
         const { channel } = interaction.member.voice;
         if (channel) {
-            if(getVoiceConnection(channel.guild.id)) return interaction.reply('už jsem tu, nechci se opakovat, ty sráčko!');
+            if (getVoiceConnection(channel.guild.id)) return interaction.reply('už jsem tu, nechci se opakovat, ty sráčko!');
             await interaction.reply('nevim co je to kafe');
             const connection = joinVoiceChannel({
                 channelId: channel.id,
