@@ -93,6 +93,7 @@ client.on('interactionCreate', async (interaction) => {
             });
 
             connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
+                newState.subscription.player.stop();
                 connection.rejoin();
             });
 
