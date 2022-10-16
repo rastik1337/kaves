@@ -48,7 +48,7 @@ const rest = new REST({ version: '10' }).setToken(TOKEN);
 })();
 
 client.on('ready', () => {
-    console.log(client.user.tag)
+    console.log(client.user.tag);
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -60,16 +60,18 @@ client.on('interactionCreate', async (interaction) => {
             if (getVoiceConnection(interaction.member.voice.channel.guild.id)) {
                 if(interaction.member.voice.channel.id === getVoiceConnection(interaction.member.voice.channel.guild.id).joinConfig.channelId) {
                     getVoiceConnection(interaction.member.voice.channel.guild.id).destroy();
-                    return interaction.reply('ty kurvo, tohle mi nedělej')
+                    return interaction.reply('ty kurvo, tohle mi nedělej');
                 }
-                return interaction.reply('vole, nejsi ve stejný roomce ty zmrdečku')
+                return interaction.reply('vole, nejsi ve stejný roomce ty zmrdečku');
             }
-            return interaction.reply('nemam se odkud odpojit ty zmrde')
-        } return interaction.reply('ty píčůsku, nejsi v roomce, nehehehe')
+            return interaction.reply('nemam se odkud odpojit ty zmrde');
+        } 
+        return interaction.reply('ty píčůsku, nejsi v roomce, nehehehe');
     }
     if (commandName === 'kafe') {
         const { channel } = interaction.member.voice;
         if (channel) {
+            if(!channel.permissionsFor(client.user).has('Connect')) return interaction.reply('ty chcanko dej mi práva!')
             if (getVoiceConnection(channel.guild.id)) return interaction.reply('už jsem tu, nechci se opakovat, ty sráčko!');
             await interaction.reply('nevim co je to kafe');
             const connection = joinVoiceChannel({
@@ -89,19 +91,26 @@ client.on('interactionCreate', async (interaction) => {
             connection.on(VoiceConnectionStatus.Ready, () => {
                 const intro = createAudioResource(path.join(__dirname, '/audio/jedine_kaves.mp3'));
                 const player = createAudioPlayer();
-                player.play(intro)
-                connection.subscribe(player)
+                player.play(intro);
+                connection.subscribe(player);
 
                 player.on(AudioPlayerStatus.Idle, () => {
                     loop();
-                })
+                });
             });
 
             connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
-                newState.subscription.player.stop();
-                connection.rejoin();
+                try {
+                    oldState.subscription.player ? oldState.subscription.player.stop() : null;
+                    newState.subscription.player.stop();
+                    await Promise.race([
+                        entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+                        entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+                    ]);
+                } catch (error) {
+                    connection.destroy();
+                }
             });
-
         } else {
             await interaction.reply('koukej se napojit do roomky, ty chcanko vole!');
         }
